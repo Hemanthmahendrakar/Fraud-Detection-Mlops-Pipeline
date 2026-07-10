@@ -3,16 +3,12 @@ MLflow Manager
 """
 
 import mlflow
-import mlflow
-from config import *
+from config import MLFLOW_TRACKING_URI, EXPERIMENT_NAME
+
 
 def setup_mlflow():
-
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(EXPERIMENT_NAME)
 
-    # Use SQLite backend
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
-
-    # Create / Use experiment
-    mlflow.set_experiment("Fraud Detection MLOps")
+    print(f"MLflow Tracking URI : {MLFLOW_TRACKING_URI}")
+    print(f"Experiment : {EXPERIMENT_NAME}")
