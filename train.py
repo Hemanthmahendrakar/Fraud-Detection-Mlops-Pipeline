@@ -4,6 +4,7 @@ Model Training
 import mlflow
 from sklearn.ensemble import RandomForestClassifier
 import mlflow.sklearn
+from config import REGISTERED_MODEL_NAME
 from preprocess import preprocess_data
 
 from config import (
@@ -71,10 +72,16 @@ def train_model(X_train,y_train):
     # ----------------------------
     # Log Model to MLflow
     # ----------------------------
-    mlflow.sklearn.log_model(
+
+
+    model_info = mlflow.sklearn.log_model(
         sk_model=model,
-        name="random_forest_model"
+        name="random_forest_model",
+        registered_model_name=REGISTERED_MODEL_NAME
     )
+
+print("Model Registered Successfully")
+print(model_info.model_uri)
 
     return (model)
 
