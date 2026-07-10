@@ -48,8 +48,10 @@ def train_model(X_train, y_train):
         accuracy = accuracy_score(y_test, predictions)
     
         mlflow.log_param("Algorithm", "RandomForest")
+        predictions = model.predict(X_test)
     
         mlflow.log_metric("Accuracy", accuracy)
+        log_model(model)
     
         mlflow.sklearn.log_model(
             model,
