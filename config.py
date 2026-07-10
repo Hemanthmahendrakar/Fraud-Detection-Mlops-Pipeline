@@ -105,3 +105,10 @@ PRODUCTION_METRICS = os.path.join(
     REPORTS_DIR,
     "production_metrics.csv"
 )
+
+
+
+
+MLFLOW_TRACKING_URI = "http://32.192.32.10:5050/"
+EXPERIMENT_NAME = "Fraud Detection MLOps"
+REGISTERED_MODEL_NAME = "FraudDetectionModel"
