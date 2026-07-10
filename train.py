@@ -5,6 +5,8 @@ Model Training
 import mlflow
 import mlflow.sklearn
 from mlflow import MlflowClient
+from mlflow_manager import start_run, end_run
+import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
 
 from config import (
@@ -40,6 +42,20 @@ def train_model(X_train, y_train):
     )
 
     with mlflow.start_run():
+    
+        model.fit(X_train, y_train)
+    
+        accuracy = accuracy_score(y_test, predictions)
+    
+        mlflow.log_param("Algorithm", "RandomForest")
+    
+        mlflow.log_metric("Accuracy", accuracy)
+    
+        mlflow.sklearn.log_model(
+            model,
+            artifact_path="model",
+            registered_model_name="FraudDetectionModel"
+        )
 
         # ----------------------------
         # Log Parameters
