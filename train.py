@@ -8,7 +8,6 @@ from config import REGISTERED_MODEL_NAME
 from preprocess import preprocess_data
 from mlflow import MlflowClient
 
-client = MlflowClient()
 from config import (
     RANDOM_STATE,
     N_ESTIMATORS,
@@ -81,6 +80,14 @@ def train_model(X_train,y_train):
         name="random_forest_model",
         registered_model_name=REGISTERED_MODEL_NAME
     )
+    client = MlflowClient()
+
+    latest_version = client.get_latest_versions(
+        REGISTERED_MODEL_NAME,
+        stages=["None"]
+    )[0]
+    
+    print(f"Latest Version: {latest_version.version}")
 
 print("Model Registered Successfully")
 print(model_info.model_uri)
