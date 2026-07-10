@@ -1,14 +1,20 @@
-"""
-MLflow Manager
-"""
-
 import mlflow
-from config import MLFLOW_TRACKING_URI, EXPERIMENT_NAME
+import mlflow.sklearn
+
+from config import (
+    MLFLOW_TRACKING_URI,
+    EXPERIMENT_NAME,
+)
+
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_experiment(EXPERIMENT_NAME)
 
 
-def setup_mlflow():
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT_NAME)
+def start_run(run_name):
 
-    print(f"MLflow Tracking URI : {MLFLOW_TRACKING_URI}")
-    print(f"Experiment : {EXPERIMENT_NAME}")
+    return mlflow.start_run(run_name=run_name)
+
+
+def end_run():
+
+    mlflow.end_run()
