@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # -------------------------------
 # Dataset
 # -------------------------------
-DATASET_PATH = os.path.join(BASE_DIR, "dataset", "training_data.csv")
+DATASET_PATH = "/home/ubuntu/dataset/training_data.csv"
 
 # -------------------------------
 # Models
