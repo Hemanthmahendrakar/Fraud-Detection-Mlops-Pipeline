@@ -1,7 +1,12 @@
 """
 Data Preprocessing
 """
+import os
 
+os.makedirs("models", exist_ok=True)
+os.makedirs("artifacts", exist_ok=True)
+os.makedirs("logs", exist_ok=True)
+os.makedirs("mlruns", exist_ok=True)
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
