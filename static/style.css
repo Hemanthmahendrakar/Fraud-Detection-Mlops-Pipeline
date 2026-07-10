@@ -1,0 +1,43 @@
+body {
+    background-color: #f4f6f9;
+}
+
+.app-navbar {
+    background: linear-gradient(90deg, #1f2937, #0f172a);
+}
+
+.hero {
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    border-radius: 16px;
+    padding: 3rem 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.feature-card {
+    transition: transform 0.15s ease-in-out;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+}
+
+.auth-card {
+    margin-top: 2rem;
+}
+
+.result-card.result-fraud {
+    border-left: 6px solid #dc3545;
+}
+
+.result-card.result-safe {
+    border-left: 6px solid #198754;
+}
+
+.navbar-brand {
+    letter-spacing: 0.5px;
+}
