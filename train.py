@@ -6,7 +6,9 @@ from sklearn.ensemble import RandomForestClassifier
 import mlflow.sklearn
 from config import REGISTERED_MODEL_NAME
 from preprocess import preprocess_data
+from mlflow import MlflowClient
 
+client = MlflowClient()
 from config import (
     RANDOM_STATE,
     N_ESTIMATORS,
