@@ -18,7 +18,6 @@ DATASET_PATH = os.getenv("DATASET_PATH","dataset/training_data.csv")
 # -------------------------------
 # Models
 # -------------------------------
-os.makedirs(MODEL_DIR, exist_ok=True)
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 PRODUCTION_MODEL = os.path.join(BASE_DIR, "model.joblib")
