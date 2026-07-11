@@ -25,58 +25,70 @@ def run_pipeline():
 
         print_header("FRAUD DETECTION MLOPS PIPELINE")
 
-        # -----------------------------
+        # ==========================================
         # Dataset Validation
-        # -----------------------------
+        # ==========================================
+
         print("\nValidating Dataset...")
+
         df = validate_dataset()
 
-        # -----------------------------
+        # ==========================================
         # Data Preprocessing
-        # -----------------------------
+        # ==========================================
+
         print("\nPreprocessing Dataset...")
+
         X_train, X_test, y_train, y_test = preprocess_data(df)
 
-        # -----------------------------
+        # ==========================================
         # Model Training
-        # -----------------------------
+        # ==========================================
+
         print("\nTraining Model...")
+
         model = train_model(
             X_train,
             y_train,
         )
 
-        # -----------------------------
+        # ==========================================
         # Model Evaluation
-        # -----------------------------
+        # ==========================================
+
         print("\nEvaluating Model...")
+
         metrics = evaluate_model(
             model,
             X_test,
             y_test,
         )
 
-        # -----------------------------
+        # ==========================================
         # Log Metrics
-        # -----------------------------
+        # ==========================================
+
         print("\nLogging Metrics...")
+
         log_metrics(metrics)
 
-        # -----------------------------
+        # ==========================================
         # Validate Metrics
-        # -----------------------------
+        # ==========================================
+
         print("\nValidating Metrics...")
 
         if not validate_metrics(metrics):
 
-            print("Model validation failed.")
-            print("Stopping pipeline.")
+            print("\nModel validation failed.")
+            print("Pipeline stopped.")
 
-            return
+            return None
 
-        # -----------------------------
+        # ==========================================
         # Compare Models
-        # -----------------------------
+        # ==========================================
+
         print("\nComparing with Production Model...")
 
         is_better = compare_models(
@@ -85,9 +97,10 @@ def run_pipeline():
             y_test,
         )
 
-        # -----------------------------
+        # ==========================================
         # Promote Model
-        # -----------------------------
+        # ==========================================
+
         if is_better:
 
             print("\nNew model is better.")
