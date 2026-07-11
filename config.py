@@ -106,7 +106,19 @@ PRODUCTION_METRICS = os.path.join(
     "production_metrics.csv"
 )
 
+# ===========================
+# MLflow Configuration
+# ===========================
 
+MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+MLFLOW_EXPERIMENT_NAME = "Fraud Detection MLOps"
+
+# Model Registry
+REGISTER_MODEL = False          # We'll change this to True in Phase 2.2
+REGISTERED_MODEL_NAME = "FraudDetectionModel"
+
+# Artifact Location
+MLFLOW_ARTIFACT_PATH = "model"
 
 
 MLFLOW_TRACKING_URI = "http://32.192.32.10:5050/"
