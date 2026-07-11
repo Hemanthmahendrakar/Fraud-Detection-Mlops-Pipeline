@@ -8,7 +8,7 @@ from train import train_model
 from evaluate import evaluate_model
 from compare import compare_models
 from utils import print_header
-from mlflow_manager import setup_mlflow
+
 
 def run_pipeline():
 
