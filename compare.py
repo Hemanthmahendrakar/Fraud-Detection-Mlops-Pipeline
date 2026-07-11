@@ -18,12 +18,7 @@ from config import (
 )
 from utils import print_header
 
-
-def compare_models():
-
-    print_header("MODEL COMPARISON")
-
-    def validate_metrics(metrics):
+def validate_metrics(metrics):
 
         print("\nChecking Model Quality...")
 
@@ -45,6 +40,12 @@ def compare_models():
 
         print("Model passed all validation checks")
         return True
+    
+def compare_models():
+
+    print_header("MODEL COMPARISON")
+
+    
 
     # -----------------------------
     # First Model
