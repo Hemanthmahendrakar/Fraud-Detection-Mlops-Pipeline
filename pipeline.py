@@ -6,10 +6,8 @@ from validate import validate_dataset
 from preprocess import preprocess_data
 from train import train_model
 from evaluate import evaluate_model
-from compare import compare_models
-from utils import print_header
 from compare import compare_models, validate_metrics
-
+from utils import print_header
 
 from mlflow_manager import (
     start_run,
@@ -24,49 +22,48 @@ def run_pipeline():
     run = start_run()
 
     try:
-
         print_header("FRAUD DETECTION MLOPS PIPELINE")
 
-        # Step 1
+        print("\nValidating dataset...")
         df = validate_dataset()
 
-        # Step 2
+        print("Preprocessing data...")
         X_train, X_test, y_train, y_test = preprocess_data(df)
 
-        # Step 3
+        print("Training model...")
         model = train_model(
             X_train,
             y_train,
         )
 
-        # Step 4
+        print("Evaluating model...")
         metrics = evaluate_model(
             model,
             X_test,
             y_test,
         )
 
-       # Step 5
+        print("Logging metrics...")
         log_metrics(metrics)
-        
-        # Step 6
+
+        print("Validating metrics...")
         if not validate_metrics(metrics):
             print("\nModel failed validation.")
             print("Stopping pipeline.")
-            return
-        
-        # Step 7
+            return None
+
+        print("Comparing with production model...")
         if compare_models():
-        
             register_model(model)
-        
             print("\nNew model promoted to Production.")
-        
         else:
-        
             print("\nExisting Production model retained.")
 
         return metrics
+
+    except Exception as e:
+        print(f"\nPipeline failed: {e}")
+        raise
 
     finally:
         end_run()
