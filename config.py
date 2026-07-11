@@ -120,6 +120,13 @@ REGISTERED_MODEL_NAME = "FraudDetectionModel"
 # Artifact Location
 MLFLOW_ARTIFACT_PATH = "model"
 
+# -----------------------------
+# Model Validation Thresholds
+# -----------------------------
+MIN_ACCURACY = 0.99
+MIN_PRECISION = 0.99
+MIN_RECALL = 0.99
+MIN_F1_SCORE = 0.99
 
 MLFLOW_TRACKING_URI = "http://32.192.32.10:5050/"
 EXPERIMENT_NAME = "Fraud Detection MLOps"
