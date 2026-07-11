@@ -2,99 +2,67 @@
 Model Comparison
 """
 
-import os
-import shutil
-import pandas as pd
+import mlflow.pyfunc
+from sklearn.metrics import accuracy_score
 
-from config import (
-    METRICS_CSV,
-    PRODUCTION_METRICS,
-    NEW_MODEL,
-    PRODUCTION_MODEL,
-    MIN_ACCURACY,
-    MIN_PRECISION,
-    MIN_RECALL,
-    MIN_F1_SCORE,
-)
+from config import REGISTERED_MODEL_NAME
 from utils import print_header
 
-def validate_metrics(metrics):
 
-        print("\nChecking Model Quality...")
+def compare_models(new_model, X_test, y_test):
+    """
+    Compare the newly trained model with the current Production model.
 
-        if metrics["Accuracy"] < MIN_ACCURACY:
-            print("Accuracy below threshold")
-            return False
-
-        if metrics["Precision"] < MIN_PRECISION:
-            print("Precision below threshold")
-            return False
-
-        if metrics["Recall"] < MIN_RECALL:
-            print("Recall below threshold")
-            return False
-
-        if metrics["F1 Score"] < MIN_F1_SCORE:
-            print("F1 Score below threshold")
-            return False
-
-        print("Model passed all validation checks")
-        return True
-    
-def compare_models():
+    Returns:
+        True  -> New model is better
+        False -> Production model is better
+    """
 
     print_header("MODEL COMPARISON")
 
-    
+    # -----------------------------
+    # New Model Accuracy
+    # -----------------------------
+    new_predictions = new_model.predict(X_test)
+    new_accuracy = accuracy_score(y_test, new_predictions)
+
+    print(f"New Model Accuracy : {new_accuracy:.6f}")
 
     # -----------------------------
-    # First Model
+    # Load Production Model
     # -----------------------------
-    if not os.path.exists(PRODUCTION_METRICS):
+    try:
 
-        print("No Production Model Found")
-        print("Promoting First Model to Production...")
+        production_model = mlflow.pyfunc.load_model(
+            f"models:/{REGISTERED_MODEL_NAME}/Production"
+        )
 
-        shutil.copy(NEW_MODEL, PRODUCTION_MODEL)
-        shutil.copy(METRICS_CSV, PRODUCTION_METRICS)
+        production_predictions = production_model.predict(X_test)
+        production_accuracy = accuracy_score(
+            y_test,
+            production_predictions
+        )
 
-        print("Production Model Created")
+        print(f"Production Accuracy : {production_accuracy:.6f}")
+
+    except Exception:
+
+        print("No Production model found.")
+        print("Treating new model as best model.")
 
         return True
-
-    # -----------------------------
-    # Load Metrics
-    # -----------------------------
-    new_metrics = pd.read_csv(METRICS_CSV)
-    production_metrics = pd.read_csv(PRODUCTION_METRICS)
-
-    new_f1 = new_metrics["F1 Score"][0]
-    old_f1 = production_metrics["F1 Score"][0]
-
-    print(f"Production F1 : {old_f1:.4f}")
-    print(f"Candidate  F1 : {new_f1:.4f}")
 
     # -----------------------------
     # Compare
     # -----------------------------
-    if new_f1 > old_f1:
+    if new_accuracy > production_accuracy:
 
-        print("\nBetter Model Found")
-
-        shutil.copy(NEW_MODEL, PRODUCTION_MODEL)
-        shutil.copy(METRICS_CSV, PRODUCTION_METRICS)
-
-        print("Production Model Updated")
+        print("\nNew model is BETTER than Production.")
 
         return True
 
     else:
 
-        print("\nCurrent Production Model is Better")
-        print("No Changes Made")
+        print("\nCurrent Production model is BETTER.")
 
         return False
-
-
-if __name__ == "__main__":
-    compare_models()
