@@ -12,7 +12,6 @@ from utils import print_header
 
 def run_pipeline():
 
-    setup_mlflow()
 
     with mlflow.start_run():
 
