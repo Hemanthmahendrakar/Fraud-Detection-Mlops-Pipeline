@@ -8,6 +8,9 @@ from train import train_model
 from evaluate import evaluate_model
 from compare import compare_models, validate_metrics
 from utils import print_header
+from compare import compare_models
+from mlflow_manager import promote_model
+
 
 from mlflow_manager import (
     start_run,
@@ -42,6 +45,30 @@ def run_pipeline():
             X_test,
             y_test,
         )
+        # ------------------------------------
+        # Compare with Production Model
+        # ------------------------------------
+        
+        is_better = compare_models(
+            model,
+            X_test,
+            y_test
+        )
+        
+        # ------------------------------------
+        # Promote if Better
+        # ------------------------------------
+        
+        if is_better:
+        
+            print("\nPromoting New Model to Production...\n")
+        
+            promote_model()
+        
+        else:
+        
+            print("\nCurrent Production Model is Better.")
+            print("Skipping Promotion.")
 
         print("Logging metrics...")
         log_metrics(metrics)
