@@ -3,8 +3,6 @@ MLflow Manager
 """
 
 import mlflow
-import mlflow.sklearn
-
 from mlflow import MlflowClient
 
 from config import (
@@ -13,83 +11,70 @@ from config import (
     REGISTERED_MODEL_NAME,
 )
 
-# ----------------------------------
+# ---------------------------------------------------
 # Configure MLflow
-# ----------------------------------
+# ---------------------------------------------------
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 
-# ----------------------------------
+# ---------------------------------------------------
 # Run Management
-# ----------------------------------
+# ---------------------------------------------------
 
 def start_run(run_name="Fraud Detection Pipeline"):
-    """Start MLflow Run"""
+    """
+    Start an MLflow run.
+    """
     return mlflow.start_run(run_name=run_name)
 
 
 def end_run():
-    """End MLflow Run"""
-    mlflow.end_run()
+    """
+    End the active MLflow run.
+    """
+    if mlflow.active_run():
+        mlflow.end_run()
 
 
-# ----------------------------------
+# ---------------------------------------------------
 # Logging
-# ----------------------------------
+# ---------------------------------------------------
 
-def log_params(params):
-    """Log Parameters"""
+def log_params(params: dict):
+    """
+    Log multiple parameters.
+    """
     mlflow.log_params(params)
 
 
-def log_metrics(metrics):
-    """Log Metrics"""
+def log_metrics(metrics: dict):
+    """
+    Log evaluation metrics.
+    """
     mlflow.log_metrics(metrics)
 
 
-# ----------------------------------
-# Model Registration
-# ----------------------------------
-
-def register_model(model):
-    """
-    Register Model in MLflow Registry
-    """
-
-    model_info = mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="model",
-        registered_model_name=REGISTERED_MODEL_NAME,
-    )
-
-    print("\nModel Registered Successfully")
-    print(f"Model URI : {model_info.model_uri}")
-
-    return model_info
-
-
-# ----------------------------------
+# ---------------------------------------------------
 # Model Promotion
-# ----------------------------------
+# ---------------------------------------------------
 
 def promote_model():
     """
     Promote the latest registered model
-    to Production.
+    to Production stage.
     """
 
     client = MlflowClient()
 
     latest_versions = client.get_latest_versions(
         REGISTERED_MODEL_NAME,
-        stages=["None"],
+        stages=["None"]
     )
 
-    if len(latest_versions) == 0:
-
-        print("No registered model available for promotion.")
+    if not latest_versions:
+        print("\nNo registered model found to promote.")
         return
 
     latest_version = latest_versions[0]
@@ -98,9 +83,13 @@ def promote_model():
         name=REGISTERED_MODEL_NAME,
         version=latest_version.version,
         stage="Production",
-        archive_existing_versions=True,
+        archive_existing_versions=True
     )
 
-    print(
-        f"\nModel Version {latest_version.version} promoted to Production."
-    )
+    print("\n======================================")
+    print("MODEL PROMOTION")
+    print("======================================")
+    print(f"Model Name    : {REGISTERED_MODEL_NAME}")
+    print(f"Version       : {latest_version.version}")
+    print("Stage         : Production")
+    print("Promotion Successful")
