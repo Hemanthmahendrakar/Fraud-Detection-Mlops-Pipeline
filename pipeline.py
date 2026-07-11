@@ -1,7 +1,7 @@
 """
 Main ML Pipeline
 """
-import mlflow
+
 from validate import validate_dataset
 from preprocess import preprocess_data
 from train import train_model
@@ -9,11 +9,19 @@ from evaluate import evaluate_model
 from compare import compare_models
 from utils import print_header
 
+from mlflow_manager import (
+    start_run,
+    end_run,
+    log_metrics,
+    register_model,
+)
+
 
 def run_pipeline():
 
+    run = start_run()
 
-    with mlflow.start_run():
+    try:
 
         print_header("FRAUD DETECTION MLOPS PIPELINE")
 
@@ -26,20 +34,31 @@ def run_pipeline():
         # Step 3
         model = train_model(
             X_train,
-            y_train
+            y_train,
         )
 
         # Step 4
         metrics = evaluate_model(
             model,
             X_test,
-            y_test
+            y_test,
         )
+
+        # Step 5
+        log_metrics(metrics)
+
+        # Step 6
+        register_model(model)
+
+        # Step 7
         compare_models()
+
         print("\nPipeline Completed Successfully")
 
+        return metrics
 
-    return metrics
+    finally:
+        end_run()
 
 
 if __name__ == "__main__":
