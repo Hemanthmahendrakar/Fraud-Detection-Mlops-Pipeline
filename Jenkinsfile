@@ -3,6 +3,9 @@ pipeline {
 
     environment {
         DATASET_PATH = "/opt/datasets/training_data.csv"
+
+        IMAGE_NAME = "fraud-mlops"
+        IMAGE_TAG  = "latest"
     }
 
     stages {
@@ -14,20 +17,6 @@ pipeline {
             }
         }
 
-        stage('Create Virtual Environment') {
-            steps {
-                sh '''
-                    python3 -m venv venv
-
-                    . venv/bin/activate
-
-                    python -m pip install --upgrade pip setuptools wheel
-
-                    pip install --no-cache-dir -r requirements.txt
-                '''
-            }
-        }
-
         stage('Debug Environment') {
             steps {
                 sh '''
@@ -35,7 +24,7 @@ pipeline {
 
                     pwd
 
-                    python3 --version
+                    docker --version
 
                     echo ""
                     echo "Dataset"
@@ -49,16 +38,20 @@ pipeline {
 
                     ls -lh "$DATASET_PATH"
 
-                    echo ""
-
                     mkdir -p models
                     mkdir -p logs
                     mkdir -p artifacts
                     mkdir -p mlruns
 
-                    echo "Workspace"
-
                     ls -al
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                 '''
             }
         }
@@ -66,14 +59,17 @@ pipeline {
         stage('Run MLOps Pipeline') {
             steps {
                 sh '''
-                    . venv/bin/activate
+                    docker rm -f fraud-mlops-container || true
 
-                    mkdir -p models
-                    mkdir -p logs
-                    mkdir -p artifacts
-                    mkdir -p mlruns
-
-                    python pipeline.py
+                    docker run --name fraud-mlops-container \
+                        --network host \
+                        -e DATASET_PATH=${DATASET_PATH} \
+                        -v /opt/datasets:/opt/datasets \
+                        -v $WORKSPACE/models:/app/models \
+                        -v $WORKSPACE/logs:/app/logs \
+                        -v $WORKSPACE/artifacts:/app/artifacts \
+                        -v $WORKSPACE/mlruns:/app/mlruns \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
         }
@@ -82,14 +78,15 @@ pipeline {
     post {
 
         success {
-            echo 'Pipeline Executed Successfully'
+            echo 'Docker Pipeline Executed Successfully'
         }
 
         failure {
-            echo 'Pipeline Failed'
+            echo 'Docker Pipeline Failed'
         }
 
         always {
+            sh 'docker rm -f fraud-mlops-container || true'
             cleanWs()
         }
     }
