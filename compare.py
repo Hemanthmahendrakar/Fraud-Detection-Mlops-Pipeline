@@ -10,9 +10,12 @@ from config import (
     METRICS_CSV,
     PRODUCTION_METRICS,
     NEW_MODEL,
-    PRODUCTION_MODEL
+    PRODUCTION_MODEL,
+    MIN_ACCURACY,
+    MIN_PRECISION,
+    MIN_RECALL,
+    MIN_F1_SCORE,
 )
-
 from utils import print_header
 
 
