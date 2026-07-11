@@ -22,6 +22,28 @@ from utils import print_header
 def compare_models():
 
     print_header("MODEL COMPARISON")
+    def validate_metrics(metrics):
+
+    print("\nChecking Model Quality...")
+
+    if metrics["Accuracy"] < MIN_ACCURACY:
+        print("Accuracy below threshold")
+        return False
+
+    if metrics["Precision"] < MIN_PRECISION:
+        print("Precision below threshold")
+        return False
+
+    if metrics["Recall"] < MIN_RECALL:
+        print("Recall below threshold")
+        return False
+
+    if metrics["F1 Score"] < MIN_F1_SCORE:
+        print("F1 Score below threshold")
+        return False
+
+    print("Model passed all validation checks")
+    return True
 
     # -----------------------------
     # First Model
