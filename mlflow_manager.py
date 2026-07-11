@@ -9,15 +9,15 @@ from config import (
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
-def start_run(run_name):
-    return mlflow.start_run(run_name=run_name)
+# def start_run(run_name):
+#     return mlflow.start_run(run_name=run_name)
 
-def end_run():
-    mlflow.end_run()
+# def end_run():
+#     mlflow.end_run()
 
-def log_model(model):
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="model",
-        registered_model_name=REGISTERED_MODEL_NAME,
-    )
+# def log_model(model):
+#     mlflow.sklearn.log_model(
+#         sk_model=model,
+#         artifact_path="model",
+#         registered_model_name=REGISTERED_MODEL_NAME,
+#     )
