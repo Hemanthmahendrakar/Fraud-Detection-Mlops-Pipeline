@@ -8,6 +8,8 @@ from train import train_model
 from evaluate import evaluate_model
 from compare import compare_models
 from utils import print_header
+from compare import compare_models, validate_metrics
+
 
 from mlflow_manager import (
     start_run,
@@ -44,16 +46,25 @@ def run_pipeline():
             y_test,
         )
 
-        # Step 5
+       # Step 5
         log_metrics(metrics)
-
+        
         # Step 6
-        register_model(model)
-
+        if not validate_metrics(metrics):
+            print("\nModel failed validation.")
+            print("Stopping pipeline.")
+            return
+        
         # Step 7
-        compare_models()
-
-        print("\nPipeline Completed Successfully")
+        if compare_models():
+        
+            register_model(model)
+        
+            print("\nNew model promoted to Production.")
+        
+        else:
+        
+            print("\nExisting Production model retained.")
 
         return metrics
 
