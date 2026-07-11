@@ -25,35 +25,58 @@ def run_pipeline():
 
         print_header("FRAUD DETECTION MLOPS PIPELINE")
 
-        print("\nValidating dataset...")
+        # -----------------------------
+        # Dataset Validation
+        # -----------------------------
+        print("\nValidating Dataset...")
         df = validate_dataset()
 
-        print("\nPreprocessing data...")
+        # -----------------------------
+        # Data Preprocessing
+        # -----------------------------
+        print("\nPreprocessing Dataset...")
         X_train, X_test, y_train, y_test = preprocess_data(df)
 
-        print("\nTraining model...")
+        # -----------------------------
+        # Model Training
+        # -----------------------------
+        print("\nTraining Model...")
         model = train_model(
             X_train,
             y_train,
         )
 
-        print("\nEvaluating model...")
+        # -----------------------------
+        # Model Evaluation
+        # -----------------------------
+        print("\nEvaluating Model...")
         metrics = evaluate_model(
             model,
             X_test,
             y_test,
         )
 
-        print("\nLogging metrics...")
+        # -----------------------------
+        # Log Metrics
+        # -----------------------------
+        print("\nLogging Metrics...")
         log_metrics(metrics)
 
-        print("\nValidating metrics...")
+        # -----------------------------
+        # Validate Metrics
+        # -----------------------------
+        print("\nValidating Metrics...")
 
         if not validate_metrics(metrics):
 
-            print("Model failed validation.")
+            print("Model validation failed.")
+            print("Stopping pipeline.")
+
             return
 
+        # -----------------------------
+        # Compare Models
+        # -----------------------------
         print("\nComparing with Production Model...")
 
         is_better = compare_models(
@@ -62,24 +85,28 @@ def run_pipeline():
             y_test,
         )
 
+        # -----------------------------
+        # Promote Model
+        # -----------------------------
         if is_better:
 
-            print("\nPromoting New Model to Production...\n")
+            print("\nNew model is better.")
+            print("Promoting to Production...")
 
             promote_model()
 
         else:
 
-            print("\nCurrent Production Model is Better.")
+            print("\nCurrent Production model is better.")
             print("Skipping Promotion.")
 
-        print("\nPipeline Completed Successfully.")
+        print_header("PIPELINE COMPLETED SUCCESSFULLY")
 
         return metrics
 
     except Exception as e:
 
-        print(f"\nPipeline Failed: {e}")
+        print(f"\nPipeline Failed : {e}")
         raise
 
     finally:
