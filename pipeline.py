@@ -8,91 +8,82 @@ from train import train_model
 from evaluate import evaluate_model
 from compare import compare_models, validate_metrics
 from utils import print_header
-from compare import compare_models
-from mlflow_manager import promote_model
-
 
 from mlflow_manager import (
     start_run,
     end_run,
     log_metrics,
-    register_model,
+    promote_model,
 )
 
 
 def run_pipeline():
 
-    run = start_run()
+    start_run()
 
     try:
+
         print_header("FRAUD DETECTION MLOPS PIPELINE")
 
         print("\nValidating dataset...")
         df = validate_dataset()
 
-        print("Preprocessing data...")
+        print("\nPreprocessing data...")
         X_train, X_test, y_train, y_test = preprocess_data(df)
 
-        print("Training model...")
+        print("\nTraining model...")
         model = train_model(
             X_train,
             y_train,
         )
 
-        print("Evaluating model...")
+        print("\nEvaluating model...")
         metrics = evaluate_model(
             model,
             X_test,
             y_test,
         )
-        # ------------------------------------
-        # Compare with Production Model
-        # ------------------------------------
-        
+
+        print("\nLogging metrics...")
+        log_metrics(metrics)
+
+        print("\nValidating metrics...")
+
+        if not validate_metrics(metrics):
+
+            print("Model failed validation.")
+            return
+
+        print("\nComparing with Production Model...")
+
         is_better = compare_models(
             model,
             X_test,
-            y_test
+            y_test,
         )
-        
-        # ------------------------------------
-        # Promote if Better
-        # ------------------------------------
-        
+
         if is_better:
-        
+
             print("\nPromoting New Model to Production...\n")
-        
+
             promote_model()
-        
+
         else:
-        
+
             print("\nCurrent Production Model is Better.")
             print("Skipping Promotion.")
 
-        print("Logging metrics...")
-        log_metrics(metrics)
-
-        print("Validating metrics...")
-        if not validate_metrics(metrics):
-            print("\nModel failed validation.")
-            print("Stopping pipeline.")
-            return None
-
-        print("Comparing with production model...")
-        if compare_models():
-            register_model(model)
-            print("\nNew model promoted to Production.")
-        else:
-            print("\nExisting Production model retained.")
+        print("\nPipeline Completed Successfully.")
 
         return metrics
 
     except Exception as e:
-        print(f"\nPipeline failed: {e}")
+
+        print(f"\nPipeline Failed: {e}")
         raise
 
     finally:
+
         end_run()
 
 
