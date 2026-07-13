@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: fraud-mlops-deployment
+  namespace: fraud-mlops
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: fraud-mlops
+
+  template:
+    metadata:
+      labels:
+        app: fraud-mlops
+
+    spec:
+      containers:
+
+      - name: fraud-mlops
+
+        image: YOUR_DOCKER_USERNAME/fraud-detection-mlops:v1
+
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 5000
