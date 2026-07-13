@@ -4,8 +4,8 @@ pipeline {
     environment {
         DATASET_PATH = "/opt/datasets/training_data.csv"
 
-        IMAGE_NAME = "fraud-mlops"
-        IMAGE_TAG  = "latest"
+        IMAGE_NAME = "YOUR_DOCKERHUB_USERNAME/fraud-detection-mlops"
+        IMAGE_TAG  = "v1"
     }
 
     stages {
@@ -17,6 +17,20 @@ pipeline {
             }
         }
 
+        stage('Create Virtual Environment') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+
+                    . venv/bin/activate
+
+                    python -m pip install --upgrade pip setuptools wheel
+
+                    pip install --no-cache-dir -r requirements.txt
+                '''
+            }
+        }
+
         stage('Debug Environment') {
             steps {
                 sh '''
@@ -24,7 +38,7 @@ pipeline {
 
                     pwd
 
-                    docker --version
+                    python3 --version
 
                     echo ""
                     echo "Dataset"
@@ -38,20 +52,16 @@ pipeline {
 
                     ls -lh "$DATASET_PATH"
 
+                    echo ""
+
                     mkdir -p models
                     mkdir -p logs
                     mkdir -p artifacts
                     mkdir -p mlruns
 
-                    ls -al
-                '''
-            }
-        }
+                    echo "Workspace"
 
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    ls -al
                 '''
             }
         }
@@ -59,34 +69,63 @@ pipeline {
         stage('Run MLOps Pipeline') {
             steps {
                 sh '''
-                    docker rm -f fraud-mlops-container || true
+                    . venv/bin/activate
 
-                    docker run --name fraud-mlops-container \
-                        --network host \
-                        -e DATASET_PATH=${DATASET_PATH} \
-                        -v /opt/datasets:/opt/datasets \
-                        -v $WORKSPACE/models:/app/models \
-                        -v $WORKSPACE/logs:/app/logs \
-                        -v $WORKSPACE/artifacts:/app/artifacts \
-                        -v $WORKSPACE/mlruns:/app/mlruns \
-                        ${IMAGE_NAME}:${IMAGE_TAG}
+                    mkdir -p models
+                    mkdir -p logs
+                    mkdir -p artifacts
+                    mkdir -p mlruns
+
+                    python pipeline.py
                 '''
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+
+                        docker logout
+                    '''
+                }
+            }
+        }
+
     }
 
     post {
 
         success {
-            echo 'Docker Pipeline Executed Successfully'
+            echo "===================================="
+            echo "Pipeline Executed Successfully"
+            echo "Docker Image: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "===================================="
         }
 
         failure {
-            echo 'Docker Pipeline Failed'
+            echo "Pipeline Failed"
         }
 
         always {
-            sh 'docker rm -f fraud-mlops-container || true'
             cleanWs()
         }
     }
