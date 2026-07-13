@@ -4,7 +4,7 @@ pipeline {
     environment {
         DATASET_PATH = "/opt/datasets/training_data.csv"
 
-        IMAGE_NAME = "YOUR_DOCKERHUB_USERNAME/fraud-detection-mlops"
+        IMAGE_NAME = "hemanthkumarm3/fraud-detection-mlops"
         IMAGE_TAG  = "v1"
     }
 
