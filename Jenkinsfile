@@ -3,9 +3,6 @@ pipeline {
 
     environment {
         DATASET_PATH = "/opt/datasets/training_data.csv"
-
-        IMAGE_NAME = "hemanthkumarm3/fraud-detection-mlops"
-        IMAGE_TAG  = "v1"
     }
 
     stages {
@@ -37,7 +34,6 @@ pipeline {
                     echo "========== DEBUG =========="
 
                     pwd
-
                     python3 --version
 
                     echo ""
@@ -52,13 +48,12 @@ pipeline {
 
                     ls -lh "$DATASET_PATH"
 
-                    echo ""
-
                     mkdir -p models
                     mkdir -p logs
                     mkdir -p artifacts
                     mkdir -p mlruns
 
+                    echo ""
                     echo "Workspace"
 
                     ls -al
@@ -83,9 +78,21 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub_cred',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+
+                    sh '''
+                        IMAGE_NAME=$DOCKER_USERNAME/fraud-detection-mlops
+                        IMAGE_TAG=v${BUILD_NUMBER}
+
+                        docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                    '''
+                }
             }
         }
 
@@ -93,13 +100,16 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'dockerhub',
+                        credentialsId: 'dockerhub-cred',
                         usernameVariable: 'DOCKER_USERNAME',
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
 
                     sh '''
+                        IMAGE_NAME=$DOCKER_USERNAME/fraud-detection-mlops
+                        IMAGE_TAG=v${BUILD_NUMBER}
+
                         echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
                         docker push $IMAGE_NAME:$IMAGE_TAG
@@ -115,10 +125,10 @@ pipeline {
     post {
 
         success {
-            echo "===================================="
+            echo "======================================"
             echo "Pipeline Executed Successfully"
-            echo "Docker Image: ${IMAGE_NAME}:${IMAGE_TAG}"
-            echo "===================================="
+            echo "Docker Image Version : v${BUILD_NUMBER}"
+            echo "======================================"
         }
 
         failure {
