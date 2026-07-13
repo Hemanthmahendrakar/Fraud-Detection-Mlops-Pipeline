@@ -22,7 +22,7 @@ spec:
 
       - name: fraud-mlops
 
-        image: hemanthkumarm3/fraud-detection-mlops:v1
+        image: hemanthkumarm3/fraud-detection-mlops
 
         imagePullPolicy: Always
 
