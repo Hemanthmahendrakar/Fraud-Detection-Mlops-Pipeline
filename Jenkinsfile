@@ -119,37 +119,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Update Kubernetes Manifest') {
-            steps {
-                script {
-
-                    sh """
-                    sed -i 's|image: hemanthmahendrakar/fraud-detection-mlops:.*|image: hemanthmahendrakar/fraud-detection-mlops:v${BUILD_NUMBER}|' k8s/deployment.yaml
-                    """
-
-                    withCredentials([usernamePassword(
-                        credentialsId: 'github-creds',
-                        usernameVariable: 'GIT_USER',
-                        passwordVariable: 'GIT_PASS'
-                    )]) {
-
-                        sh """
-                        git config user.name "Jenkins"
-
-                        git config user.email "jenkins@local"
-
-                        git add k8s/deployment.yaml
-
-                        git commit -m "Updated image to v${BUILD_NUMBER}" || true
-
-                        git push https://${GIT_USER}:${GIT_PASS}@github.com/Hemanthmahendrakar/Fraud-Detection-Mlops-Pipeline.git HEAD:main
-                        """
-                    }
-                }
-            }
-        }
-
     }
 
     post {
